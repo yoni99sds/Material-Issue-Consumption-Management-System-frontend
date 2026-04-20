@@ -1,24 +1,37 @@
 import { useEffect, useState } from "react";
 import { materialService } from "../../services/material-service";
-import { CheckCircle2, Clock } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
+
+// 🔥 STRICT STATUS TYPE (FIX)
+type Status = "pending" | "approved" | "rejected";
 
 export default function SupervisorDashboard() {
   const [issues, setIssues] = useState<any[]>([]);
 
-  const fetch = async () => {
-    const data = await materialService.getAll();
-    setIssues(data);
+  const fetchIssues = async () => {
+    try {
+      const data = await materialService.getAll();
+      setIssues(data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
-    fetch();
+    fetchIssues();
   }, []);
 
-  const updateStatus = async (id: string, status: string) => {
-    await materialService.update(id, {
-      header: { status },
-    });
-    fetch();
+  // 🔥 FIXED TYPE HERE
+  const updateStatus = async (id: string, status: Status) => {
+    try {
+      await materialService.update(id, {
+        header: { status },
+      });
+
+      fetchIssues();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -36,25 +49,27 @@ export default function SupervisorDashboard() {
               className="flex justify-between items-center border-b border-zinc-800 py-3"
             >
               <div>
-                <p>{i.header?.workOrderNo}</p>
+                <p className="font-medium">{i.header?.workOrderNo}</p>
                 <p className="text-sm text-zinc-500">
                   {i.header?.machine}
                 </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-3 items-center">
+                {/* APPROVE */}
                 <button
                   onClick={() => updateStatus(i._id, "approved")}
-                  className="text-green-400"
+                  className="text-green-400 hover:text-green-300"
                 >
-                  <CheckCircle2 />
+                  <CheckCircle2 size={20} />
                 </button>
 
+                {/* REJECT */}
                 <button
                   onClick={() => updateStatus(i._id, "rejected")}
-                  className="text-red-400"
+                  className="text-red-400 hover:text-red-300"
                 >
-                  ✕
+                  <XCircle size={20} />
                 </button>
               </div>
             </div>
