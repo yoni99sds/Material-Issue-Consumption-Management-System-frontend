@@ -1,35 +1,22 @@
 import api from "../lib/api";
-import { MaterialIssueHeader, MaterialIssueRow } from "../models/material";
-
-export interface MaterialIssuePayload {
-  header: MaterialIssueHeader;
-  rows: MaterialIssueRow[];
-}
-
-// ✅ NEW TYPE FOR UPDATE
-export interface UpdateMaterialIssuePayload {
-  header?: Partial<MaterialIssueHeader>;
-  rows?: MaterialIssueRow[];
-}
 
 export const materialService = {
-  async getAll() {
-    const response = await api.get("/material-issue");
-    return response.data;
+  getAll: async () => {
+    const res = await api.get("/material-issue");
+    return res.data || [];
   },
 
-  async create(data: MaterialIssuePayload) {
-    const response = await api.post("/material-issue", data);
-    return response.data;
+  create: async (data: any) => {
+    const res = await api.post("/material-issue", data);
+    return res.data;
   },
 
-  // ✅ FIXED UPDATE
-  async update(id: string, data: UpdateMaterialIssuePayload) {
-    const response = await api.put(`/material-issue/${id}`, data);
-    return response.data;
+  update: async (id: string, status: string) => {
+    const res = await api.put(`/material-issue/${id}`, { status });
+    return res.data;
   },
 
-  async delete(id: string) {
-    await api.delete(`/material-issue/${id}`);
+  delete: async (id: string) => {
+    return api.delete(`/material-issue/${id}`);
   },
 };
